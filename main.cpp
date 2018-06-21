@@ -19,6 +19,7 @@
 #define FRAME_BUFFER_HEIGHT    (VIDEO_PIXEL_VW)
 
 static DisplayBase Display;
+static Thread mainTask(osPriorityNormal, (1024 * 8));
 
 #if defined(__ICCARM__)
 #pragma data_alignment=32
@@ -97,7 +98,7 @@ static void btn0_fall(void) {
     }
 }
 
-int main() {
+static void main_task(void) {
     cv::Mat canny_img;
     JPEG_Converter::bitmap_buff_info_t bitmap_buff_info;
     JPEG_Converter::encode_options_t   encode_options;
@@ -144,4 +145,9 @@ int main() {
             display_app.SendJpeg(JpegBuffer, (int)jcu_encode_size);
         }
     }
+}
+
+int main(void) {
+    mainTask.start(callback(main_task));
+    mainTask.join();
 }
